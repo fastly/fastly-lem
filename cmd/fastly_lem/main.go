@@ -6,6 +6,7 @@ import (
 	"github.com/fastly/fastly_lem/pkg/config"
 	"os"
 )
+
 func main() {
 	var configFile = flag.String("configFile","lem.config","Path to your LEM config file")
 	var apiKey = flag.String("token","","API Key to use with the Fastly API")
