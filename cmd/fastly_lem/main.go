@@ -7,7 +7,6 @@ import (
 	"os"
 )
 func main() {
-
 	var configFile = flag.String("configFile","lem.config","Path to your LEM config file")
 	var apiKey = flag.String("token","","API Key to use with the Fastly API")
 	var serviceId = flag.String("service","","Service ID to configure")
@@ -48,7 +47,6 @@ func main() {
 	if err != nil {
 		fmt.Printf("error creating dictionary, aborting configurationg: %s\n",err)
 	}
-
 
     fmt.Printf("\n***********************************************************\n")
 	fmt.Printf("Congratulations, your setup has completed successfully!\n")

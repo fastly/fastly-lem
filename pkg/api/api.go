@@ -167,7 +167,6 @@ func (c *ApiClient) CreateBigQueryConfig(name, project, dataset, table, email, k
 }
 
 func toSnippetType(input string) fastly.SnippetType {
-
 	switch input {
 	case "init":
 		return fastly.SnippetTypeInit
