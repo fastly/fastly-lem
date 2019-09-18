@@ -1,15 +1,4 @@
-#--------------------- Customer Configuration ---------------------------------------#
-[bigquery]
-project = "YOUR-PROJECT-HERE"
-dataset = "BQ Dataset"
-table = "BQ Table"
-email = "serviceacct@bqproject.iam.gserviceaccount.com"
-private_key = "-----BEGIN PRIVATE KEY-----
-........
------END PRIVATE KEY-----"
-
-
-#---------- Fastly Configuration - DO NOT EDIT BELOW THIS LINE ---------------------#
+#---------- Fastly Configuration - DO NOT EDIT  ---------------------#
 global_logging_condition = "disable_global_logging"
 dictionary_name = "lem_logging"
 logging_config_name = "LEMBigQuery"
@@ -61,3 +50,15 @@ name = "live_event_monitoring_logging_snippet_log"
 type = "log"
 priority = 1 
 url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.log.snippet"
+
+#--------------------- Customer Configuration ---------------------------------------#
+[bigquery]
+project = "YOUR-PROJECT-HERE"
+dataset = "BQ Dataset"
+table = "BQ Table"
+email = "serviceacct@bqproject.iam.gserviceaccount.com"
+private_key = """
+-----BEGIN PRIVATE KEY-----
+........
+-----END PRIVATE KEY-----
+"""

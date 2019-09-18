@@ -18,7 +18,7 @@ const DictionarySleepSeconds = 2
 // New - create a new instance of ApiClient.
 // Automatically set the version to the latest version we can
 // write to unless it was supplied
-func New(key string, id string, version int) (ApiClient, error) {
+func New(key, id string, version int) (ApiClient, error) {
 	client, err := fastly.NewClient(key)
 	if err != nil {
 		return ApiClient{}, err
@@ -62,7 +62,7 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 
 	// Check if latest version is not active
 	if latest.Active == true {
-		// TBD see if we want to automatically clone for user?
+		// TODO: see if we want to automatically clone for user?
 		//newVersion, err := client.CloneVersion(&fastly.CloneVersionInput{
 		//	Service: serviceId,
 		//	Version: latest.Number,
@@ -76,7 +76,7 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 }
 
 // CreateSnippet - creates a snippet in the service configuration
-func (c *ApiClient) CreateSnippet(name string, content string, priority int, snippetType string) error {
+func (c *ApiClient) CreateSnippet(name, content string, priority int, snippetType string) error {
 	input := &fastly.CreateSnippetInput{
 		Service: c.ServiceId,
 		Version: c.Version,
@@ -84,7 +84,6 @@ func (c *ApiClient) CreateSnippet(name string, content string, priority int, sni
 		Priority: priority,
 		Type: toSnippetType(snippetType),
 		Content: content,
-
 	}
 
 	_, err := c.Client.CreateSnippet(input)
@@ -96,7 +95,7 @@ func (c *ApiClient) CreateSnippet(name string, content string, priority int, sni
 }
 
 // SetupCondition - create a new condition in the API that we can attach to other objects
-func (c *ApiClient) CreateCondition(name string, statement string, priority int, condType string) error {
+func (c *ApiClient) CreateCondition(name, statement string, priority int, condType string) error {
 	input := &fastly.CreateConditionInput{
 		Service: c.ServiceId,
 		Version: c.Version,
@@ -149,7 +148,7 @@ func (c *ApiClient) CheckDictionaryExists(dictionary string) (string,bool) {
 }
 
 // CreateDictionaryItem - Creates a new element in the dictionary
-func (c *ApiClient) CreateDictionaryItem(dictionary string, key string, value string) error {
+func (c *ApiClient) CreateDictionaryItem(dictionary, key, value string) error {
 	//First let's loop up until dictionary is available via config
 	var d string
 	var exists bool
@@ -176,8 +175,6 @@ func (c *ApiClient) CreateDictionaryItem(dictionary string, key string, value st
 	_, err := c.Client.CreateDictionaryItem(input)
 	if err == nil {
 		fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n",key,value,dictionary)
-	} else {
-		fmt.Printf("Problem creating item on dictionary %s on service %s with key %s and value %s\n",dictionary,c.ServiceId,key,value)
 	}
 
 	return err
@@ -195,6 +192,7 @@ func (c *ApiClient) CreateBigQueryConfig(name, project, dataset, table, email, k
 	  ResponseCondition: condition,
 	  SecretKey: key,
 	  Format: "{}",
+	  Name: name,
 	}
 
 	_, err := c.Client.CreateBigQuery(input)

@@ -38,16 +38,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	//// Create the global condition to disable logging
+	// Create the global condition to disable logging
 	err = conf.SetupCondition()
 	if err != nil {
 		fmt.Printf("error creating condition, aborting configuration: %s\n",err)
 		os.Exit(1)
 	}
 
+	// Create the dictionary and the "enabled" key
 	err = conf.SetupDictionary()
 	if err != nil {
 		fmt.Printf("error creating dictionary, aborting configurationg: %s\n",err)
+		os.Exit(1)
+	}
+
+	// Create the BigQuery configuration
+	err = conf.SetupBigQuery()
+	if err != nil {
+		fmt.Printf("error configuring BigQuery logging config: %s\n",err)
 		os.Exit(1)
 	}
 
