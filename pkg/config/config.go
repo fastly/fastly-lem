@@ -2,7 +2,6 @@ package config
 
 import (
     "github.com/BurntSushi/toml"
-    "github.com/davecgh/go-spew/spew"
     "github.com/fastly/fastly_lem/pkg/api"
 )
 
@@ -37,8 +36,6 @@ func New(configFile string, token string, serviceId string, version int) (LEMCon
    if _, err := toml.DecodeFile(configFile,&config); err != nil {
     return LEMConfig{}, err
    }
-
-   spew.Dump(config)
 
    client, err := api.New(token,serviceId,version)
    if err != nil {
@@ -79,7 +76,7 @@ func (c *LEMConfig) SetupCondition() error {
 func (c *LEMConfig) SetupDictionary() error {
     err := c.Api.CreateDictionary(c.DictionaryName)
     if err != nil {
-        return err
+       return err
     }
 
     err = c.Api.CreateDictionaryItem(c.DictionaryName,"enabled","0")

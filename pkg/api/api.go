@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fastly/go-fastly/fastly"
+	"time"
 )
 
 type ApiClient struct {
@@ -11,6 +12,8 @@ type ApiClient struct {
 	ServiceId string
 	Version int
 }
+
+const DictionarySleepSeconds = 2
 
 // New - create a new instance of ApiClient.
 // Automatically set the version to the latest version we can
@@ -127,18 +130,54 @@ func (c *ApiClient) CreateDictionary(name string) error {
 	return err
 }
 
+// CheckDictionaryExists - This is required since creating a new dictionary is done via VCL.
+// Before we can add any items to the dictionary, we need to ensure it exists in the config.
+func (c *ApiClient) CheckDictionaryExists(dictionary string) (string,bool) {
+	input := &fastly.GetDictionaryInput{
+	   Service: c.ServiceId,
+	   Version: c.Version,
+	   Name: dictionary,
+	}
+
+	d,err := c.Client.GetDictionary(input)
+
+	if err != nil {
+		return "", false
+	}
+
+	return d.ID, true
+}
+
 // CreateDictionaryItem - Creates a new element in the dictionary
 func (c *ApiClient) CreateDictionaryItem(dictionary string, key string, value string) error {
+	//First let's loop up until dictionary is available via config
+	var d string
+	var exists bool
+
+	fmt.Printf("Waiting for dictionary %s to be available.", dictionary)
+	for {
+		d, exists = c.CheckDictionaryExists(dictionary)
+		if exists {
+			fmt.Printf("Done\n")
+			break
+		} else {
+			fmt.Printf(".")
+			time.Sleep(DictionarySleepSeconds * time.Second)
+		}
+	}
+
 	input := &fastly.CreateDictionaryItemInput{
 		Service: c.ServiceId,
 		ItemKey: key,
 		ItemValue: value,
-		Dictionary: dictionary,
+		Dictionary: d,
 	}
 
 	_, err := c.Client.CreateDictionaryItem(input)
 	if err == nil {
 		fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n",key,value,dictionary)
+	} else {
+		fmt.Printf("Problem creating item on dictionary %s on service %s with key %s and value %s\n",dictionary,c.ServiceId,key,value)
 	}
 
 	return err
