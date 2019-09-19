@@ -56,8 +56,7 @@ func (c *LEMConfig) SetupSnippets() error {
             return err
         }
 
-        err = c.Api.CreateSnippet(s.Name,snippet,s.Priority,s.SnippetType)
-        if err != nil {
+        if err = c.Api.CreateSnippet(s.Name,snippet,s.Priority,s.SnippetType); err != nil {
             return err
         }
     }
@@ -74,12 +73,11 @@ func (c *LEMConfig) SetupCondition() error {
 
 // SetupDictionary creates the new Edge Dictionary to conditionally control logging
 func (c *LEMConfig) SetupDictionary() error {
-    err := c.Api.CreateDictionary(c.DictionaryName)
-    if err != nil {
+    if err := c.Api.CreateDictionary(c.DictionaryName); err != nil {
        return err
     }
 
-    err = c.Api.CreateDictionaryItem(c.DictionaryName,"enabled","0")
+    err := c.Api.CreateDictionaryItem(c.DictionaryName,"enabled","0")
     return err
 }
 

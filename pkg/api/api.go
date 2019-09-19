@@ -48,6 +48,7 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 	if err != nil {
 		return 0, err
 	}
+
 	latest, err := client.LatestVersion(&fastly.LatestVersionInput{
 		Service: serviceId,
 	})
@@ -77,6 +78,8 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 
 // CreateSnippet - creates a snippet in the service configuration
 func (c *ApiClient) CreateSnippet(name, content string, priority int, snippetType string) error {
+	var err error
+
 	input := &fastly.CreateSnippetInput{
 		Service: c.ServiceId,
 		Version: c.Version,
@@ -86,8 +89,7 @@ func (c *ApiClient) CreateSnippet(name, content string, priority int, snippetTyp
 		Content: content,
 	}
 
-	_, err := c.Client.CreateSnippet(input)
-	if err == nil {
+	if _, err = c.Client.CreateSnippet(input); err == nil {
 		fmt.Printf("Snippet %s created for method %s in version %d\n",name,snippetType,c.Version)
 	}
 
@@ -96,6 +98,8 @@ func (c *ApiClient) CreateSnippet(name, content string, priority int, snippetTyp
 
 // SetupCondition - create a new condition in the API that we can attach to other objects
 func (c *ApiClient) CreateCondition(name, statement string, priority int, condType string) error {
+	var err error
+
 	input := &fastly.CreateConditionInput{
 		Service: c.ServiceId,
 		Version: c.Version,
@@ -105,8 +109,7 @@ func (c *ApiClient) CreateCondition(name, statement string, priority int, condTy
 		Type: condType,
 	}
 
-	_, err := c.Client.CreateCondition(input)
-	if err == nil {
+	if _, err = c.Client.CreateCondition(input); err == nil {
 		fmt.Printf("Condition %s created with type %s in version %d\n",name,condType,c.Version)
 	}
 
@@ -115,14 +118,15 @@ func (c *ApiClient) CreateCondition(name, statement string, priority int, condTy
 
 // CreateDictionary - Creates a new edge dictionary
 func (c *ApiClient) CreateDictionary(name string) error {
+	var err error
+
 	input := &fastly.CreateDictionaryInput{
 		Service: c.ServiceId,
 		Version: c.Version,
 		Name: name,
 	}
 
-	_, err := c.Client.CreateDictionary(input)
-	if err == nil {
+	if _, err = c.Client.CreateDictionary(input); err == nil {
 		fmt.Printf("Dictionary %s successfully created\n",name)
 	}
 
@@ -152,6 +156,7 @@ func (c *ApiClient) CreateDictionaryItem(dictionary, key, value string) error {
 	//First let's loop up until dictionary is available via config
 	var d string
 	var exists bool
+	var err error
 
 	fmt.Printf("Waiting for dictionary %s to be available.", dictionary)
 	for {
@@ -172,8 +177,7 @@ func (c *ApiClient) CreateDictionaryItem(dictionary, key, value string) error {
 		Dictionary: d,
 	}
 
-	_, err := c.Client.CreateDictionaryItem(input)
-	if err == nil {
+	if _, err = c.Client.CreateDictionaryItem(input); err == nil {
 		fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n",key,value,dictionary)
 	}
 
@@ -182,6 +186,8 @@ func (c *ApiClient) CreateDictionaryItem(dictionary, key, value string) error {
 
 // CreateBigQueryConfig - Creates the Logging BigQuery configuration
 func (c *ApiClient) CreateBigQueryConfig(name, project, dataset, table, email, key, condition string, ) error {
+	var err error
+
 	input := &fastly.CreateBigQueryInput{
 	  Service: c.ServiceId,
 	  Version: c.Version,
@@ -195,8 +201,7 @@ func (c *ApiClient) CreateBigQueryConfig(name, project, dataset, table, email, k
 	  Name: name,
 	}
 
-	_, err := c.Client.CreateBigQuery(input)
-	if err == nil {
+	if _, err = c.Client.CreateBigQuery(input); err == nil {
 		fmt.Printf("bigquery configuration %s successfully created\n",name)
 	}
 
