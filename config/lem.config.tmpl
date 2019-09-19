@@ -1,56 +1,3 @@
-#---------- Fastly Configuration - DO NOT EDIT  ---------------------#
-global_logging_condition = "disable_global_logging"
-dictionary_name = "lem_logging"
-logging_config_name = "LEMBigQuery"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_init"
-type = "init"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.init.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_recv"
-type = "recv"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.recv.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_fetch"
-type = "fetch"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.fetch.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_miss"
-type = "miss"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.miss.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_pass"
-type = "pass"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.pass.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_error"
-type = "error"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.error.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_deliver"
-type = "deliver"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.deliver.snippet"
-
-[[snippet]]
-name = "live_event_monitoring_logging_snippet_log"
-type = "log"
-priority = 1 
-url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.log.snippet"
-
 #--------------------- Customer Configuration ---------------------------------------#
 [bigquery]
 project = "YOUR-PROJECT-HERE"
@@ -62,3 +9,58 @@ private_key = """
 ........
 -----END PRIVATE KEY-----
 """
+
+#---------- Fastly Configuration - DO NOT EDIT BELOW THIS LINE ---------------------#
+[fastly]
+
+    global_logging_condition = "disable_global_logging"
+    dictionary_name = "lem_logging"
+    logging_config_name = "LEMBigQuery"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_init"
+    type = "init"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.init.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_recv"
+    type = "recv"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.recv.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_fetch"
+    type = "fetch"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.fetch.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_miss"
+    type = "miss"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.miss.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_pass"
+    type = "pass"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.pass.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_error"
+    type = "error"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.error.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_deliver"
+    type = "deliver"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.deliver.snippet"
+
+    [[fastly.snippet]]
+    name = "live_event_monitoring_logging_snippet_log"
+    type = "log"
+    priority = 1
+    url = "https://fiddle.fastlydemo.net/downloads/solution_advanced_logging_for_live_event_monitoring-dc2fb7d6d6d15d79-0ed965d6.log.snippet"
