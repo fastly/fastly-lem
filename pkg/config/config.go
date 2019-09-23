@@ -2,9 +2,9 @@ package config
 
 import (
     "github.com/BurntSushi/toml"
-    "github.com/davecgh/go-spew/spew"
+    //"github.com/davecgh/go-spew/spew"
     "github.com/fastly/fastly_lem/pkg/api"
-    "os"
+    //"os"
 )
 
 type BigQueryConfig struct {
@@ -42,9 +42,6 @@ func New(configFile string, token string, serviceId string, version int) (LEMCon
    if _, err := toml.DecodeFile(configFile,&config); err != nil {
     return LEMConfig{}, err
    }
-
-   spew.Dump(config)
-   os.Exit(1)
 
    client, err := api.New(token,serviceId,version)
    if err != nil {
