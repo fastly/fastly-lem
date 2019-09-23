@@ -18,5 +18,4 @@ func DownloadFile(url string) (string, error) {
 	}
 
 	return string(bodyBytes), nil
-
 }
