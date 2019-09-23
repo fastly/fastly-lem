@@ -1,4 +1,4 @@
-module github.com/fastly/fastly_lem
+module github.com/fastly/fastly-lem
 
 go 1.12
 

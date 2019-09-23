@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fastly/fastly_lem/pkg/config"
+	"github.com/fastly/fastly-lem/pkg/config"
 	"os"
 )
 

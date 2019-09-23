@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/fastly/fastly_lem/pkg/api"
+	"github.com/fastly/fastly-lem/pkg/api"
 )
 
 // BigQueryConfig holds the configuration to the BigQuery logging object in the service config
