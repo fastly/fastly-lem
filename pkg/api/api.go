@@ -7,33 +7,33 @@ import (
 	"time"
 )
 
-type ApiClient struct {
-	Client *fastly.Client
-	ServiceId string
-	Version int
+type Client struct {
+	Client    *fastly.Client
+	ServiceID string
+	Version   int
 }
 
 const DictionarySleepSeconds = 2
 
-// New - create a new instance of ApiClient.
+// NewClient creates a new instance of Client.
 // Automatically set the version to the latest version we can
 // write to unless it was supplied
-func New(key, id string, version int) (ApiClient, error) {
+func NewClient(key, id string, version int) (Client, error) {
 	client, err := fastly.NewClient(key)
 	if err != nil {
-		return ApiClient{}, err
+		return Client{}, err
 	}
 
 	if version == 0 {
-		latest, err := GetLatestVersion(key,id)
+		latest, err := GetLatestVersion(key, id)
 		if err != nil {
-			return ApiClient{},err
+			return Client{}, err
 		}
-		fmt.Printf("Using latest writeable version %d, since no version was provided\n",latest)
+		fmt.Printf("Using latest writeable version %d, since no version was provided\n", latest)
 		version = latest
 	}
 
-	c := ApiClient{
+	c := Client{
 		client,
 		id,
 		version,
@@ -42,8 +42,8 @@ func New(key, id string, version int) (ApiClient, error) {
 	return c, nil
 }
 
-// GetLatestVersion - figures out the latest version of the configuration
-func GetLatestVersion(key string, serviceId string) (int,error) {
+// GetLatestVersion figures out the latest version of the configuration
+func GetLatestVersion(key string, serviceId string) (int, error) {
 	client, err := fastly.NewClient(key)
 	if err != nil {
 		return 0, err
@@ -53,12 +53,12 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 		Service: serviceId,
 	})
 	if err != nil {
-		return -1, err
+		return 0, err
 	}
 
 	// API returns nil if there is no version of the config
 	if latest == nil {
-		return -1, errors.New("there is currently no version in the service, please create a version in your service first")
+		return 0, errors.New("there is currently no version in the service, please create a version in your service first")
 	}
 
 	// Check if latest version is not active
@@ -69,80 +69,75 @@ func GetLatestVersion(key string, serviceId string) (int,error) {
 		//	Version: latest.Number,
 		//})
 		// fmt.Printf("cloning active version %d to new version %d since there is no draft config to write to",latest.Number, newVersion)
-		msg := fmt.Sprintf("there is no writeable config version, the latest version %d is active and should be cloned before continuing",latest.Number)
-		return -1, errors.New(msg)
+		return 0, fmt.Errorf("there is no writeable config version, the latest version %d is active and should be cloned before continuing", latest.Number)
 	}
 
 	return latest.Number, nil
 }
 
-// CreateSnippet - creates a snippet in the service configuration
-func (c *ApiClient) CreateSnippet(name, content string, priority int, snippetType string) error {
-	var err error
-
+// CreateSnippet creates a snippet in the service configuration
+func (c *Client) CreateSnippet(name, content string, priority int, snippetType string) error {
 	input := &fastly.CreateSnippetInput{
-		Service: c.ServiceId,
-		Version: c.Version,
-		Name: name,
+		Service:  c.ServiceID,
+		Version:  c.Version,
+		Name:     name,
 		Priority: priority,
-		Type: toSnippetType(snippetType),
-		Content: content,
+		Type:     toSnippetType(snippetType),
+		Content:  content,
 	}
 
-	if _, err = c.Client.CreateSnippet(input); err == nil {
-		fmt.Printf("Snippet %s created for method %s in version %d\n",name,snippetType,c.Version)
+	if _, err := c.Client.CreateSnippet(input); err != nil {
+		return err
 	}
 
-	return err
+	fmt.Printf("Snippet %s created for method %s in version %d\n", name, snippetType, c.Version)
+	return nil
 }
 
-// SetupCondition - create a new condition in the API that we can attach to other objects
-func (c *ApiClient) CreateCondition(name, statement string, priority int, condType string) error {
-	var err error
-
+// SetupCondition creates a new condition in the API that we can attach to other objects
+func (c *Client) CreateCondition(name, statement string, priority int, condType string) error {
 	input := &fastly.CreateConditionInput{
-		Service: c.ServiceId,
-		Version: c.Version,
-		Name: name,
+		Service:   c.ServiceID,
+		Version:   c.Version,
+		Name:      name,
 		Statement: statement,
-		Priority: priority,
-		Type: condType,
+		Priority:  priority,
+		Type:      condType,
 	}
 
-	if _, err = c.Client.CreateCondition(input); err == nil {
-		fmt.Printf("Condition %s created with type %s in version %d\n",name,condType,c.Version)
+	if _, err := c.Client.CreateCondition(input); err != nil {
+		return err
 	}
 
-	return err
+	fmt.Printf("Condition %s created with type %s in version %d\n", name, condType, c.Version)
+	return nil
 }
 
-// CreateDictionary - Creates a new edge dictionary
-func (c *ApiClient) CreateDictionary(name string) error {
-	var err error
-
+// CreateDictionary creates a new edge dictionary
+func (c *Client) CreateDictionary(name string) error {
 	input := &fastly.CreateDictionaryInput{
-		Service: c.ServiceId,
+		Service: c.ServiceID,
 		Version: c.Version,
-		Name: name,
+		Name:    name,
 	}
 
-	if _, err = c.Client.CreateDictionary(input); err == nil {
-		fmt.Printf("Dictionary %s successfully created\n",name)
+	if _, err := c.Client.CreateDictionary(input); err != nil {
+		return err
 	}
 
-	return err
+	fmt.Printf("Dictionary %s successfully created\n", name)
+	return nil
 }
 
-// CheckDictionaryExists - This is required since creating a new dictionary is done via VCL.
-// Before we can add any items to the dictionary, we need to ensure it exists in the config.
-func (c *ApiClient) CheckDictionaryExists(dictionary string) (string,bool) {
+// CheckDictionaryExists is a method to ensure the dictionary is available before writing new entries.
+func (c *Client) CheckDictionaryExists(dictionary string) (string, bool) {
 	input := &fastly.GetDictionaryInput{
-	   Service: c.ServiceId,
-	   Version: c.Version,
-	   Name: dictionary,
+		Service: c.ServiceID,
+		Version: c.Version,
+		Name:    dictionary,
 	}
 
-	d,err := c.Client.GetDictionary(input)
+	d, err := c.Client.GetDictionary(input)
 
 	if err != nil {
 		return "", false
@@ -151,61 +146,67 @@ func (c *ApiClient) CheckDictionaryExists(dictionary string) (string,bool) {
 	return d.ID, true
 }
 
-// CreateDictionaryItem - Creates a new element in the dictionary
-func (c *ApiClient) CreateDictionaryItem(dictionary, key, value string) error {
+// CreateDictionaryItem creates a new element in the dictionary
+func (c *Client) CreateDictionaryItem(dictionary, key, value string) error {
 	//First let's loop up until dictionary is available via config
-	var d string
-	var exists bool
-	var err error
+	var (
+		d      string
+		exists bool
+	)
 
+	deadline := time.Now().Add(60 * time.Second)
 	fmt.Printf("Waiting for dictionary %s to be available.", dictionary)
+
 	for {
-		d, exists = c.CheckDictionaryExists(dictionary)
-		if exists {
-			fmt.Printf("Done\n")
-			break
-		} else {
+		if time.Now().After(deadline) {
+			return fmt.Errorf("timeout waiting for dictionary to be created")
+		}
+
+		if d, exists = c.CheckDictionaryExists(dictionary); !exists {
 			fmt.Printf(".")
 			time.Sleep(DictionarySleepSeconds * time.Second)
+			continue
 		}
+
+		break
 	}
 
 	input := &fastly.CreateDictionaryItemInput{
-		Service: c.ServiceId,
-		ItemKey: key,
-		ItemValue: value,
+		Service:    c.ServiceID,
+		ItemKey:    key,
+		ItemValue:  value,
 		Dictionary: d,
 	}
 
-	if _, err = c.Client.CreateDictionaryItem(input); err == nil {
-		fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n",key,value,dictionary)
+	if _, err := c.Client.CreateDictionaryItem(input); err != nil {
+		return err
 	}
 
-	return err
+	fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n", key, value, dictionary)
+	return nil
 }
 
-// CreateBigQueryConfig - Creates the Logging BigQuery configuration
-func (c *ApiClient) CreateBigQueryConfig(name, project, dataset, table, email, key, condition string, ) error {
-	var err error
-
+// CreateBigQueryConfig creates the Logging BigQuery configuration
+func (c *Client) CreateBigQueryConfig(name, project, dataset, table, email, key, condition string) error {
 	input := &fastly.CreateBigQueryInput{
-	  Service: c.ServiceId,
-	  Version: c.Version,
-	  ProjectID: project,
-	  Dataset: dataset,
-	  Table: table,
-	  User: email,
-	  ResponseCondition: condition,
-	  SecretKey: key,
-	  Format: "{}",
-	  Name: name,
+		Service:           c.ServiceID,
+		Version:           c.Version,
+		ProjectID:         project,
+		Dataset:           dataset,
+		Table:             table,
+		User:              email,
+		ResponseCondition: condition,
+		SecretKey:         key,
+		Format:            "{}",
+		Name:              name,
 	}
 
-	if _, err = c.Client.CreateBigQuery(input); err == nil {
-		fmt.Printf("bigquery configuration %s successfully created\n",name)
+	if _, err := c.Client.CreateBigQuery(input); err != nil {
+		return err
 	}
 
-	return err
+	fmt.Printf("bigquery configuration %s successfully created\n", name)
+	return nil
 }
 
 func toSnippetType(input string) fastly.SnippetType {
@@ -231,7 +232,7 @@ func toSnippetType(input string) fastly.SnippetType {
 	case "none":
 		return fastly.SnippetTypeNone
 	default:
-		fmt.Printf("Warning, unmatched snippet type of %s, using default snippet type of NONE",input)
+		fmt.Printf("Warning, unmatched snippet type of %s, using default snippet type of NONE", input)
 		return fastly.SnippetTypeNone
 	}
 }

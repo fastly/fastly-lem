@@ -5,10 +5,11 @@ import (
 	"net/http"
 )
 
+//DownloadFile downloads the necessary snippets to be deployed to a config
 func DownloadFile(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	defer resp.Body.Close()
 

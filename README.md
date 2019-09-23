@@ -1,16 +1,16 @@
 # fastly_lem
 
-`fastly_lem` is a tool for helping customers automate the configuration steps necessary for setting up condtionally enabled, advanced logging to BigQuery for a Live Event Monitoring customer event.
+`fastly_lem` is a tool for helping customers automate the configuration steps necessary for setting up conditionally enabled, advanced logging to BigQuery for a Live Event Monitoring customer event.
 
 The Live Event Monitoring logging configuration requires a specific set of steps in order for it to work correctly.  Those steps are 
 
-1. Use our standard Avanced Logging format snippets that automate the deployment of advanced logging metrics.
+1. Use our standard Advanced Logging format snippets that automate the deployment of advanced logging metrics.
 2. Configure an Edge Dictionary that allows customers to conditionally turn on and off the logging since it is only needed during the event
 3. Automate the setup of BigQuery as a logging provider as the steps can be a bit cumbersome to do manually 
 
 
 ### Configuration 
-`fastly_lem` takes a parameter `-configFile` that points to the LEM configuration file.  Currently, the only configuration that customers need to change is the `[bigquery]` section.  The following fields are included in the configuration:
+`fastly_lem` takes a parameter `-configFile` that points to the LEM configuration file, a TOML formatted config file.  Currently, the only configuration that customers need to change from the included template file (lem.config.tmpl) is the `[bigquery]` section.  The following fields are included in the configuration:
 
 *  Top level `[fastly]` block.  Anything inside this block should not be touched or changed by customers. Inside the `[fastly]` block are 
   * `global_logging_condition` - This defines the name of the condition that conditionally disables logging at the config level since logging is explicitly called in the snippet 
@@ -23,7 +23,7 @@ For your own configuration, copy the template `lem.config.tmpl` to `lem.config` 
 
 ### Running 
 
-`fastly_lem` has 4 parameters in order to run 
+`fastly_lem` has 4 flags in order to run 
 
 |  Parameter | Required  | Default  | Description  | 
 |------------|-------|------|-------|--------------|
