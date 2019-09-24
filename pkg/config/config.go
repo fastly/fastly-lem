@@ -26,7 +26,7 @@ type FastlyConfig struct {
 // SnippetConfig holds the list of snippets we will deploy to the service
 type SnippetConfig struct {
 	Name        string `toml:"name"`
-	Url         string `toml:"url"`
+	URL         string `toml:"url"`
 	SnippetType string `toml:"type"`
 	Priority    int    `toml:"priority"`
 }
@@ -35,23 +35,23 @@ type SnippetConfig struct {
 type Config struct {
 	Fastly   FastlyConfig   `toml:"fastly"`
 	BigQuery BigQueryConfig `toml:"bigquery"`
-	Api      *api.Client    `toml:"-"`
+	API      *api.Client    `toml:"-"`
 }
 
-// NewClient creates a new instance of the LEM Configuration
-func New(configFile string, token string, serviceId string, version int) (Config, error) {
+// New creates a new instance of the LEM Configuration
+func New(configFile string, token string, serviceID string, version int) (Config, error) {
 	var config Config
 
 	if _, err := toml.DecodeFile(configFile, &config); err != nil {
 		return Config{}, err
 	}
 
-	client, err := api.NewClient(token, serviceId, version)
+	client, err := api.NewClient(token, serviceID, version)
 	if err != nil {
 		return Config{}, err
 	}
 
-	config.Api = &client
+	config.API = &client
 
 	return config, nil
 }
@@ -60,12 +60,12 @@ func New(configFile string, token string, serviceId string, version int) (Config
 func (c *Config) SetupSnippets() error {
 	//Download and create the snippets
 	for _, s := range c.Fastly.Snippets {
-		snippet, err := DownloadFile(s.Url)
+		snippet, err := DownloadFile(s.URL)
 		if err != nil {
 			return err
 		}
 
-		if err = c.Api.CreateSnippet(s.Name, snippet, s.Priority, s.SnippetType); err != nil {
+		if err = c.API.CreateSnippet(s.Name, snippet, s.Priority, s.SnippetType); err != nil {
 			return err
 		}
 	}
@@ -76,20 +76,20 @@ func (c *Config) SetupSnippets() error {
 // SetupCondition is a method to disable global logging since logging will be done via
 // the snippet itself
 func (c *Config) SetupCondition() error {
-	return c.Api.CreateCondition(c.Fastly.GlobalLoggingCondition, "false", 1, "response")
+	return c.API.CreateCondition(c.Fastly.GlobalLoggingCondition, "false", 1, "response")
 }
 
 // SetupDictionary creates the new Edge Dictionary to conditionally control logging
 func (c *Config) SetupDictionary() error {
-	if err := c.Api.CreateDictionary(c.Fastly.DictionaryName); err != nil {
+	if err := c.API.CreateDictionary(c.Fastly.DictionaryName); err != nil {
 		return err
 	}
 
-	err := c.Api.CreateDictionaryItem(c.Fastly.DictionaryName, "enabled", "0")
+	err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "enabled", "0")
 	return err
 }
 
 // SetupBigQuery creates the BigQuery configuration
 func (c *Config) SetupBigQuery() error {
-	return c.Api.CreateBigQueryConfig(c.Fastly.LoggingConfigName, c.BigQuery.Project, c.BigQuery.Dataset, c.BigQuery.Table, c.BigQuery.Email, c.BigQuery.PrivateKey, c.Fastly.GlobalLoggingCondition)
+	return c.API.CreateBigQueryConfig(c.Fastly.LoggingConfigName, c.BigQuery.Project, c.BigQuery.Dataset, c.BigQuery.Table, c.BigQuery.Email, c.BigQuery.PrivateKey, c.Fastly.GlobalLoggingCondition)
 }

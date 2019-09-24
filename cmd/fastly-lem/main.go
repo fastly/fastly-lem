@@ -11,7 +11,7 @@ func main() {
 	var (
 		configFile = flag.String("configFile", "lem.config", "Path to your LEM config file")
 		apiKey     = flag.String("token", "", "API Key to use with the Fastly API")
-		serviceId  = flag.String("service", "", "Service ID to configure")
+		serviceID  = flag.String("service", "", "Service ID to configure")
 		version    = flag.Int("version", 0, "Version of service config to use, defaults to latest")
 	)
 
@@ -22,12 +22,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *serviceId == "" {
+	if *serviceID == "" {
 		fmt.Printf("error, parameter 'service' is required\n")
 		os.Exit(1)
 	}
 
-	conf, err := config.New(*configFile, *apiKey, *serviceId, *version)
+	conf, err := config.New(*configFile, *apiKey, *serviceID, *version)
 	if err != nil {
 		fmt.Printf("error loading config file %s: %v\n", *configFile, err)
 		os.Exit(1)

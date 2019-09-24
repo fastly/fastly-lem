@@ -7,12 +7,14 @@ import (
 	"time"
 )
 
+// Client holds the information to perform updates via the Fastly API
 type Client struct {
 	Client    *fastly.Client
 	ServiceID string
 	Version   int
 }
 
+// DictionarySleepSeconds is our sleep timer waiting for a dictionary to be available
 const DictionarySleepSeconds = 2
 
 // NewClient creates a new instance of Client.
@@ -43,14 +45,14 @@ func NewClient(key, id string, version int) (Client, error) {
 }
 
 // GetLatestVersion figures out the latest version of the configuration
-func GetLatestVersion(key string, serviceId string) (int, error) {
+func GetLatestVersion(key string, serviceID string) (int, error) {
 	client, err := fastly.NewClient(key)
 	if err != nil {
 		return 0, err
 	}
 
 	latest, err := client.LatestVersion(&fastly.LatestVersionInput{
-		Service: serviceId,
+		Service: serviceID,
 	})
 	if err != nil {
 		return 0, err
@@ -65,7 +67,7 @@ func GetLatestVersion(key string, serviceId string) (int, error) {
 	if latest.Active == true {
 		// TODO: see if we want to automatically clone for user?
 		//newVersion, err := client.CloneVersion(&fastly.CloneVersionInput{
-		//	Service: serviceId,
+		//	Service: serviceID,
 		//	Version: latest.Number,
 		//})
 		// fmt.Printf("cloning active version %d to new version %d since there is no draft config to write to",latest.Number, newVersion)
@@ -94,7 +96,7 @@ func (c *Client) CreateSnippet(name, content string, priority int, snippetType s
 	return nil
 }
 
-// SetupCondition creates a new condition in the API that we can attach to other objects
+// CreateCondition creates a new condition in the API that we can attach to other objects
 func (c *Client) CreateCondition(name, statement string, priority int, condType string) error {
 	input := &fastly.CreateConditionInput{
 		Service:   c.ServiceID,
