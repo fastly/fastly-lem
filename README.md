@@ -19,18 +19,18 @@ The Live Event Monitoring logging configuration requires a specific set of steps
   * `[[fastly.snippet]]` - An array of snippets required to make the advanced logging work
 * `[bigquery]` - Customer specific BigQuery configuration   
 
-For your own configuration, copy the template `lem.config.tmpl` to `lem.config` in a directory of your choice and edit the copy.  Remember to not modify anything underneath the `[fastly]` configuration.
+For your own configuration, copy the template [`lem.config.tmpl`](config/lem.config.tmpl) to `lem.config` in a directory of your choice and edit the copy.  Remember to not modify anything underneath the `[fastly]` configuration.
 
 ### Running 
 
-`fastly-lem` has 4 flags in order to run 
+`fastly-lem` has 4 flags in order to run:
 
-|  Parameter | Required  | Default  | Description  | 
-|------------|-------|------|-------|--------------|
-| configFile | YES   | N/A  | Path to the config file that `fastly-lem` will use  |  
-| token      | YES   | N/A  | Fastly API Key use to publish configuration updates   |   
-| service    | YES   | N/A  | The ID of the service to use   |  
-| version    | NO    | 0    | Version of the service to use.  If no version is supplied, `fastly-lem` will attempt to use the latest available `Draft` service.  If the latest version is `active`, you will need to first clone your active service in the UI.|
+| Parameter  | Required | Default | Description |
+|------------|----------|---------|-------------|
+| configFile | YES      | N/A     | Path to the config file that `fastly-lem` will use |
+| token      | YES      | N/A     | Fastly API Key use to publish configuration updates |
+| service    | YES      | N/A     | The ID of the service to use |
+| version    | NO       | 0       | Version of the service to use.  If no version is supplied, `fastly-lem` will attempt to use the latest available `Draft` service.  If the latest version is `active`, you will need to first clone your active service in the UI. |
 
 Example:
 
