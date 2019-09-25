@@ -17,14 +17,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Gofmt
-      run: "if [[ $(gofmt -l ./{cmd,pkg}) ]] ; then exit 1 ; fi"
-
-    - name: Staticcheck
-      run: |
-        wget -q https://github.com/dominikh/go-tools/releases/download/2019.2.3/staticcheck_linux_amd64.tar.gz
-        echo "93f7780f8710380037cecee8a49178de01c6153f19587c082abec4cc8637016c  staticcheck_linux_amd64.tar.gz" | sha256sum -c -
-        tar zxf staticcheck_linux_amd64.tar.gz
-        ./staticcheck/staticcheck ./{cmd,pkg}/...
+      run: "F=$(gofmt -l ./{cmd,pkg}) ; if [[ $F ]] ; then echo $F ; exit 1 ; fi"
 
     - name: Vet
       run: go vet ./{cmd,pkg}/...
