@@ -35,3 +35,4 @@ For your own configuration, copy the template `lem.config.tmpl` to `lem.config` 
 Example:
 
 ```fastly-lem -configFile /tmp/lem.config -token MYFASTLYTOKEN -service MYSERVICEID```
+
