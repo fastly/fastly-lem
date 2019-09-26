@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const CLIVersion = "1.0"
+
 func main() {
 	var (
 		configFile = flag.String("configFile", "lem.config", "Path to your LEM config file")
@@ -14,6 +16,12 @@ func main() {
 		serviceID  = flag.String("service", "", "Service ID to configure")
 		version    = flag.Int("version", 0, "Version of service config to use, defaults to latest")
 	)
+
+	flag.Usage = func() {
+		_, _ = fmt.Fprintf(flag.CommandLine.Output(), "fastly-lem:  A CLI tool for configuring Live Event Monitoring\n")
+		_, _ = fmt.Fprintf(flag.CommandLine.Output(), "Version: %s\n\n", CLIVersion)
+		flag.PrintDefaults()
+	}
 
 	flag.Parse()
 
