@@ -189,18 +189,18 @@ func (c *Client) CreateDictionaryItem(dictionary, key, value string) error {
 }
 
 // CreateBigQueryConfig creates the Logging BigQuery configuration
-func (c *Client) CreateBigQueryConfig(name, project, dataset, table, email, key, condition string) error {
+func (c *Client) CreateBigQueryConfig(name, project, dataset, table, email, key string) error {
 	input := &fastly.CreateBigQueryInput{
-		Service:           c.ServiceID,
-		Version:           c.Version,
-		ProjectID:         project,
-		Dataset:           dataset,
-		Table:             table,
-		User:              email,
-		ResponseCondition: condition,
-		SecretKey:         key,
-		Format:            "{}",
-		Name:              name,
+		Service:   c.ServiceID,
+		Version:   c.Version,
+		ProjectID: project,
+		Dataset:   dataset,
+		Table:     table,
+		User:      email,
+		SecretKey: key,
+		Format:    "{}",
+		Name:      name,
+		Placement: "none",
 	}
 
 	if _, err := c.Client.CreateBigQuery(input); err != nil {

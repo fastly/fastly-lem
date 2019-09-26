@@ -17,10 +17,9 @@ type BigQueryConfig struct {
 // FastlyConfig holds the configuration to standard fastly configuration parameters, these should not be
 // changed by the customer
 type FastlyConfig struct {
-	Snippets               []SnippetConfig `toml:"snippet"`
-	GlobalLoggingCondition string          `toml:"global_logging_condition"`
-	DictionaryName         string          `toml:"dictionary_name"`
-	LoggingConfigName      string          `toml:"logging_config_name"`
+	Snippets          []SnippetConfig `toml:"snippet"`
+	DictionaryName    string          `toml:"dictionary_name"`
+	LoggingConfigName string          `toml:"logging_config_name"`
 }
 
 // SnippetConfig holds the list of snippets we will deploy to the service
@@ -73,12 +72,6 @@ func (c *Config) SetupSnippets() error {
 	return nil
 }
 
-// SetupCondition is a method to disable global logging since logging will be done via
-// the snippet itself
-func (c *Config) SetupCondition() error {
-	return c.API.CreateCondition(c.Fastly.GlobalLoggingCondition, "false", 1, "response")
-}
-
 // SetupDictionary creates the new Edge Dictionary to conditionally control logging
 func (c *Config) SetupDictionary() error {
 	if err := c.API.CreateDictionary(c.Fastly.DictionaryName); err != nil {
@@ -91,5 +84,5 @@ func (c *Config) SetupDictionary() error {
 
 // SetupBigQuery creates the BigQuery configuration
 func (c *Config) SetupBigQuery() error {
-	return c.API.CreateBigQueryConfig(c.Fastly.LoggingConfigName, c.BigQuery.Project, c.BigQuery.Dataset, c.BigQuery.Table, c.BigQuery.Email, c.BigQuery.PrivateKey, c.Fastly.GlobalLoggingCondition)
+	return c.API.CreateBigQueryConfig(c.Fastly.LoggingConfigName, c.BigQuery.Project, c.BigQuery.Dataset, c.BigQuery.Table, c.BigQuery.Email, c.BigQuery.PrivateKey)
 }

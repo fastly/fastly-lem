@@ -39,12 +39,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create the global condition to disable logging
-	if err = conf.SetupCondition(); err != nil {
-		fmt.Printf("error creating condition, aborting configuration: %v\n", err)
-		os.Exit(1)
-	}
-
 	// Create the dictionary and the "enabled" key
 	if err = conf.SetupDictionary(); err != nil {
 		fmt.Printf("error creating dictionary, aborting configuration: %v\n", err)
