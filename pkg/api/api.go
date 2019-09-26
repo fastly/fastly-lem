@@ -170,6 +170,7 @@ func (c *Client) CreateDictionaryItem(dictionary, key, value string) error {
 			continue
 		}
 
+		fmt.Printf("Done\n")
 		break
 	}
 
@@ -184,7 +185,7 @@ func (c *Client) CreateDictionaryItem(dictionary, key, value string) error {
 		return err
 	}
 
-	fmt.Printf("key %s and value %s successfully inserted into dictionary %s\n", key, value, dictionary)
+	fmt.Printf("key '%s' with value '%s' successfully inserted into dictionary %s\n", key, value, dictionary)
 	return nil
 }
 
