@@ -1,0 +1,33 @@
+on: [push, pull_request]
+name: Test
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.13.x]
+        platform: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Gofmt
+      run: "F=$(gofmt -l ./{cmd,pkg}) ; if [[ $F ]] ; then echo $F ; exit 1 ; fi"
+
+    - name: Vet
+      run: go vet ./{cmd,pkg}/...
+
+    - name: Lint
+      run: |
+        # https://github.com/actions/setup-go/issues/14
+        export PATH=${PATH}:`go env GOPATH`/bin
+        go get -u golang.org/x/lint/golint
+        golint ./{cmd,pkg}/...
+
+    - name: Test
+      run: go test -race ./{cmd,pkg}/...
