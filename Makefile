@@ -1,3 +1,5 @@
+CURRENT_TAG := $(shell git describe --tags)
+
 .PHONY: all
 all: vet lint release
 
@@ -31,4 +33,5 @@ clean:
 .PHONY: release
 release: clean build 
 	mkdir -p build/linux build/windows build/macos
-	tar cvfz build/release.tgz build/linux build/windows build/macos config/*
+	@echo Building version $(CURRENT_TAG)
+	tar cvfz build/fastly-lem-$(CURRENT_TAG).tgz build/linux build/windows build/macos config/*

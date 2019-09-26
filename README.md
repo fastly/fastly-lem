@@ -25,8 +25,8 @@ For your own configuration, copy the template `lem.config.tmpl` to `lem.config` 
 
 `fastly-lem` has 4 flags in order to run 
 
-|  Parameter | Required  | Default  | Description  | 
-|------------|-------|------|-------|--------------|
+|  Parameter | Required  | Default  | Description| 
+|------------|-----------|----------|------------|
 | configFile | YES   | N/A  | Path to the config file that `fastly-lem` will use  |  
 | token      | YES   | N/A  | Fastly API Key use to publish configuration updates   |   
 | service    | YES   | N/A  | The ID of the service to use   |  
