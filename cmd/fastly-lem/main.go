@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-const CLIVersion = "1.0"
+const CLIVersion = "1.1"
 
 func main() {
 	var (
