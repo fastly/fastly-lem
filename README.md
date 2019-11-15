@@ -13,7 +13,6 @@ The Live Event Monitoring logging configuration requires a specific set of steps
 `fastly-lem` takes a parameter `-configFile` that points to the LEM configuration file, a TOML formatted config file.  Currently, the only configuration that customers need to change from the included template file (lem.config.tmpl) is the `[bigquery]` section.  The following fields are included in the configuration:
 
 *  Top level `[fastly]` block.  Anything inside this block should not be touched or changed by customers. Inside the `[fastly]` block are 
-  * `global_logging_condition` - This defines the name of the condition that conditionally disables logging at the config level since logging is explicitly called in the snippet 
   * `dictionary_name` the name of the Edge Dictionary used to conditionally turn on and off logging 
   * `logging_config_name` - The name of the bigQuery configuration in the service 
   * `[[fastly.snippet]]` - An array of snippets required to make the advanced logging work
