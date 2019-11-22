@@ -20,6 +20,7 @@ type FastlyConfig struct {
 	Snippets          []SnippetConfig `toml:"snippet"`
 	DictionaryName    string          `toml:"dictionary_name"`
 	LoggingConfigName string          `toml:"logging_config_name"`
+	SampleRate        string          `toml:"sample_rate"`
 }
 
 // SnippetConfig holds the list of snippets we will deploy to the service
@@ -78,8 +79,15 @@ func (c *Config) SetupDictionary() error {
 		return err
 	}
 
-	err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "enabled", "0")
-	return err
+	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "enabled", "0"); err != nil {
+		return err
+	}
+
+	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "sample_rate", c.Fastly.SampleRate); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SetupBigQuery creates the BigQuery configuration

@@ -12,9 +12,10 @@ The Live Event Monitoring logging configuration requires a specific set of steps
 ### Configuration 
 `fastly-lem` takes a parameter `-configFile` that points to the LEM configuration file, a TOML formatted config file.  Currently, the only configuration that customers need to change from the included template file (lem.config.tmpl) is the `[bigquery]` section.  The following fields are included in the configuration:
 
-*  Top level `[fastly]` block.  Anything inside this block should not be touched or changed by customers. Inside the `[fastly]` block are 
-  * `dictionary_name` the name of the Edge Dictionary used to conditionally turn on and off logging 
-  * `logging_config_name` - The name of the bigQuery configuration in the service 
+*  Top level `[fastly]` block.  The params `dictionary_name` and `logging_config_name` should not be touched or changed by customers. Inside the `[fastly]` block are 
+  * `dictionary_name` the name of the Edge Dictionary used to conditionally turn on and off logging.  This value MUST be `lem_logging`
+  * `logging_config_name` - The name of the bigQuery configuration in the service.  This value MUST be `LEMBigQuery`
+  * `sample_rate` - A configurable string value between 0 and 100 to determine what percentage of traffic we should log. Useful if traffic volumes are very high and you only want to send a sample of traffic.
   * `[[fastly.snippet]]` - An array of snippets required to make the advanced logging work
 * `[bigquery]` - Customer specific BigQuery configuration   
 

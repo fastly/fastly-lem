@@ -47,7 +47,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create the dictionary and the "enabled" key
+	// Create the dictionary and the keys
 	if err = conf.SetupDictionary(); err != nil {
 		fmt.Printf("error creating dictionary, aborting configuration: %v\n", err)
 		os.Exit(1)
