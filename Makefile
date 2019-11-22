@@ -34,4 +34,4 @@ clean:
 release: clean build 
 	mkdir -p build/linux build/windows build/macos
 	@echo Building version $(VERSION)
-	tar cvfz build/fastly-lem-$(VERSION).tgz build/linux build/windows build/macos config/*
+	tar --exclude='config/snippets' -zcvf build/fastly-lem-$(VERSION).tgz build/linux build/windows build/macos config/*
