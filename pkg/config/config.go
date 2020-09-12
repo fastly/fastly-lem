@@ -83,6 +83,10 @@ func (c *Config) SetupDictionary() error {
 		return err
 	}
 
+	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", "0"); err != nil {
+		return err
+	}
+
 	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "sample_rate", c.Fastly.SampleRate); err != nil {
 		return err
 	}
