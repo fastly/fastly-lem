@@ -16,6 +16,7 @@ The Live Event Monitoring logging configuration requires a specific set of steps
   * `dictionary_name` the name of the Edge Dictionary used to conditionally turn on and off logging.  This value MUST be `lem_logging`
   * `logging_config_name` - The name of the bigQuery configuration in the service.  This value MUST be `LEMBigQuery`
   * `sample_rate` - A configurable string value between 0 and 100 to determine what percentage of traffic we should log. Useful if traffic volumes are very high and you only want to send a sample of traffic.
+  * `log_all_errors` - A configurable string value between 0 and 1 to determine if all errors should be logged regardless of sample_rate of logs. 0 is off and 1 is on.
   * `[[fastly.snippet]]` - An array of snippets required to make the advanced logging work
 * `[bigquery]` - Customer specific BigQuery configuration   
 

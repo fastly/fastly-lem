@@ -1,6 +1,8 @@
 package config
 
 import (
+	"strings"
+
 	"github.com/BurntSushi/toml"
 	"github.com/fastly/fastly-lem/pkg/api"
 )
@@ -21,6 +23,7 @@ type FastlyConfig struct {
 	DictionaryName    string          `toml:"dictionary_name"`
 	LoggingConfigName string          `toml:"logging_config_name"`
 	SampleRate        string          `toml:"sample_rate"`
+	LogAllErrors      string          `toml:"log_all_errors"`
 }
 
 // SnippetConfig holds the list of snippets we will deploy to the service
@@ -83,7 +86,10 @@ func (c *Config) SetupDictionary() error {
 		return err
 	}
 
-	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", "0"); err != nil {
+	if len(strings.TrimSpace(c.Fastly.LogAllErrors)) == 0 {
+		c.Fastly.LogAllErrors = "0"
+	}
+	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", c.Fastly.LogAllErrors); err != nil {
 		return err
 	}
 
