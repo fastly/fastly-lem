@@ -51,6 +51,8 @@ set beresp.http.log-origin:host = bereq.http.host;
 
 if (req.backend.is_origin) {
   set beresp.http.log-origin:shield = server.datacenter;
+  set beresp.http.log-origin:src_ip = beresp.backend.src_ip;
+  set beresp.http.log-origin:alternate_path = beresp.used_alternate_path_to_origin;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_deliver {
@@ -125,6 +127,8 @@ if (fastly_info.state !~ "^(MISS|PASS)") {
   unset req.http.log-origin:port;
   unset req.http.log-origin:reason;
   unset req.http.log-origin:shield;
+  unset req.http.log-origin:src_ip;
+  unset req.http.log-origin:alternate_path;
   unset req.http.log-origin:status;
   unset req.http.log-origin:url;
   set var.origin_ttfb = math.NAN;
@@ -166,6 +170,8 @@ if ( var.enabled == true
         {""fastly_pop":""} server.datacenter {"","}
         {""fastly_server":""} server.hostname {"","}
         {""fastly_shield_used":"} if(req.http.log-origin:shield, "%22" + req.http.log-origin:shield + "%22", "null") {","}
+        {""fastly_src_ip_used":"} if(req.http.log-origin:src_ip, "%22" + req.http.log-origin:src_ip + "%22", "null") {","}
+        {""fastly_alternate_path_used":"} if(req.http.log-origin:alternate_path, "true", "false") {","}
         {""origin_host":"} if(req.http.log-origin:host,"%22" + json.escape(req.http.log-origin:host) + "%22","null") {","}
         {""origin_ip":"} if(req.http.log-origin:ip,"%22" + json.escape(req.http.log-origin:ip) + "%22","null") {","}
         {""origin_method":"} if(req.http.log-origin:method,"%22" + json.escape(req.http.log-origin:method) + "%22","null") {","}
