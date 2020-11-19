@@ -182,6 +182,8 @@ if ( var.enabled == true
         {""origin_ttfb":"} if(req.http.log-origin:ttfb == "NaN", "null", req.http.log-origin:ttfb) {","}
         {""origin_ttlb":"} if(req.http.log-origin:ttlb == "NaN", "null", req.http.log-origin:ttlb) {","}
         {""origin_url":"} if(req.http.log-origin:url,"%22" + json.escape(req.http.log-origin:url) + "%22","null") {","}
+        {""request_service_id":""} json.escape(req.service_id) {"","}
+        {""request_restarts":"} req.restarts {","}
         {""request_host":""} json.escape(req.http.log-request:host) {"","}
         {""request_is_h2":"} if(fastly_info.is_h2, "true", "false") {","}
         {""request_is_ipv6":"} if(req.is_ipv6, "true", "false") {","}
