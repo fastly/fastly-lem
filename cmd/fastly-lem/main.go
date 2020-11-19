@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// CLIVersion : version number
 const CLIVersion = "1.1"
 
 func main() {
