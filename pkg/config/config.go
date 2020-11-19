@@ -1,8 +1,6 @@
 package config
 
 import (
-	"strings"
-
 	"github.com/BurntSushi/toml"
 	"github.com/fastly/fastly-lem/pkg/api"
 )
@@ -43,7 +41,15 @@ type Config struct {
 
 // New creates a new instance of the LEM Configuration
 func New(configFile string, token string, serviceID string, version int) (Config, error) {
-	var config Config
+
+	config := Config{
+		Fastly: FastlyConfig{
+			DictionaryName:    "lem_logging",
+			LoggingConfigName: "LEMBigQuery",
+			SampleRate:        "100",
+			LogAllErrors:      "0",
+		},
+	}
 
 	if _, err := toml.DecodeFile(configFile, &config); err != nil {
 		return Config{}, err
@@ -86,9 +92,6 @@ func (c *Config) SetupDictionary() error {
 		return err
 	}
 
-	if len(strings.TrimSpace(c.Fastly.LogAllErrors)) == 0 {
-		c.Fastly.LogAllErrors = "0"
-	}
 	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", c.Fastly.LogAllErrors); err != nil {
 		return err
 	}
