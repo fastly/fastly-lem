@@ -21,6 +21,7 @@ type FastlyConfig struct {
 	DictionaryName    string          `toml:"dictionary_name"`
 	LoggingConfigName string          `toml:"logging_config_name"`
 	SampleRate        string          `toml:"sample_rate"`
+	LogAllErrors      string          `toml:"log_all_errors"`
 }
 
 // SnippetConfig holds the list of snippets we will deploy to the service
@@ -40,7 +41,15 @@ type Config struct {
 
 // New creates a new instance of the LEM Configuration
 func New(configFile string, token string, serviceID string, version int) (Config, error) {
-	var config Config
+
+	config := Config{
+		Fastly: FastlyConfig{
+			DictionaryName:    "lem_logging",
+			LoggingConfigName: "LEMBigQuery",
+			SampleRate:        "100",
+			LogAllErrors:      "0",
+		},
+	}
 
 	if _, err := toml.DecodeFile(configFile, &config); err != nil {
 		return Config{}, err
@@ -83,7 +92,7 @@ func (c *Config) SetupDictionary() error {
 		return err
 	}
 
-	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", "0"); err != nil {
+	if err := c.API.CreateDictionaryItem(c.Fastly.DictionaryName, "log_all_errors", c.Fastly.LogAllErrors); err != nil {
 		return err
 	}
 
