@@ -8,7 +8,7 @@ import (
 )
 
 // CLIVersion : version number
-const CLIVersion = "1.5"
+const CLIVersion = "1.6"
 
 func main() {
 	var (
