@@ -35,43 +35,43 @@ if (req.backend.is_origin) {
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_fetch {
-set beresp.http.log-timing:fetch = time.elapsed.usec;
-set beresp.http.log-timing:misspass = req.http.log-lem-timing:misspass;
-set beresp.http.log-timing:do_stream = beresp.do_stream;
+set beresp.http.log-lem-timing:fetch = time.elapsed.usec;
+set beresp.http.log-lem-timing:misspass = req.http.log-lem-timing:misspass;
+set beresp.http.log-lem-timing:do_stream = beresp.do_stream;
 
-set beresp.http.log-origin:ip = beresp.backend.ip;
-set beresp.http.log-origin:port = beresp.backend.port;
-set beresp.http.log-origin:name = regsub(beresp.backend.name, "^.+--", "");
-set beresp.http.log-origin:status = beresp.status;
-set beresp.http.log-origin:reason = beresp.response;
+set beresp.http.log-lem-origin:ip = beresp.backend.ip;
+set beresp.http.log-lem-origin:port = beresp.backend.port;
+set beresp.http.log-lem-origin:name = regsub(beresp.backend.name, "^.+--", "");
+set beresp.http.log-lem-origin:status = beresp.status;
+set beresp.http.log-lem-origin:reason = beresp.response;
 
-set beresp.http.log-origin:method = bereq.method;
-set beresp.http.log-origin:url = bereq.url;
-set beresp.http.log-origin:host = bereq.http.host;
+set beresp.http.log-lem-origin:method = bereq.method;
+set beresp.http.log-lem-origin:url = bereq.url;
+set beresp.http.log-lem-origin:host = bereq.http.host;
 
 if (req.backend.is_origin) {
-  set beresp.http.log-origin:shield = server.datacenter;
-  set beresp.http.log-origin:src_ip = beresp.backend.src_ip;
-  set beresp.http.log-origin:alternate_path = beresp.used_alternate_path_to_origin;
+  set beresp.http.log-lem-origin:shield = server.datacenter;
+  set beresp.http.log-lem-origin:src_ip = beresp.backend.src_ip;
+  set beresp.http.log-lem-origin:alternate_path = beresp.used_alternate_path_to_origin;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_deliver {
 set req.http.log-lem-timing:deliver = time.elapsed.usec;
-set req.http.log-lem-timing:fetch = resp.http.log-timing:fetch;
-set req.http.log-lem-timing:misspass = resp.http.log-timing:misspass;
-set req.http.log-lem-timing:do_stream = resp.http.log-timing:do_stream;
-unset resp.http.log-timing;
+set req.http.log-lem-timing:fetch = resp.http.log-lem-timing:fetch;
+set req.http.log-lem-timing:misspass = resp.http.log-lem-timing:misspass;
+set req.http.log-lem-timing:do_stream = resp.http.log-lem-timing:do_stream;
+unset resp.http.log-lem-timing;
 
-set req.http.log-lem-origin = resp.http.log-origin;
+set req.http.log-lem-origin = resp.http.log-lem-origin;
 
 if (fastly.ff.visits_this_service == 0) {
-  unset resp.http.log-origin;
+  unset resp.http.log-lem-origin;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_error {
 # req.backend.is_origin is not available in vcl_error
 if (!req.backend.is_shield) {
-  set obj.http.log-origin:shield = server.datacenter;
+  set obj.http.log-lem-origin:shield = server.datacenter;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_log {
