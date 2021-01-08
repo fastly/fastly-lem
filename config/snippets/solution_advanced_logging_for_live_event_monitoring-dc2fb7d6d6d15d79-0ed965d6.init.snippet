@@ -6,148 +6,148 @@
 # For logging
 #
 # We use the following headers to stash information:
-#   * log-client
-#   * log-origin
-#   * log-request
-#   * log-response
-#   * log-timing
+#   * log-lem-client
+#   * log-lem-origin
+#   * log-lem-request
+#   * log-lem-response
+#   * log-lem-timing
 #
 
 
 sub solution_advanced_logging_for_live_event_monitoring_recv {
 set client.geo.ip_override = req.http.fastly-client-ip;
-set req.http.log-request:host = req.http.host;
-set req.http.log-request:method = req.method;
-set req.http.log-request:url = req.url;
+set req.http.log-lem-request:host = req.http.host;
+set req.http.log-lem-request:method = req.method;
+set req.http.log-lem-request:url = req.url;
 }
 
 
 sub solution_advanced_logging_for_live_event_monitoring_miss {
-set req.http.log-timing:misspass = time.elapsed.usec;
+set req.http.log-lem-timing:misspass = time.elapsed.usec;
 if (req.backend.is_origin) {
-  unset bereq.http.log-request;
+  unset bereq.http.log-lem-request;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_pass {
-set req.http.log-timing:misspass = time.elapsed.usec;
+set req.http.log-lem-timing:misspass = time.elapsed.usec;
 if (req.backend.is_origin) {
-  unset bereq.http.log-request;
+  unset bereq.http.log-lem-request;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_fetch {
-set beresp.http.log-timing:fetch = time.elapsed.usec;
-set beresp.http.log-timing:misspass = req.http.log-timing:misspass;
-set beresp.http.log-timing:do_stream = beresp.do_stream;
+set beresp.http.log-lem-timing:fetch = time.elapsed.usec;
+set beresp.http.log-lem-timing:misspass = req.http.log-lem-timing:misspass;
+set beresp.http.log-lem-timing:do_stream = beresp.do_stream;
 
-set beresp.http.log-origin:ip = beresp.backend.ip;
-set beresp.http.log-origin:port = beresp.backend.port;
-set beresp.http.log-origin:name = regsub(beresp.backend.name, "^.+--", "");
-set beresp.http.log-origin:status = beresp.status;
-set beresp.http.log-origin:reason = beresp.response;
+set beresp.http.log-lem-origin:ip = beresp.backend.ip;
+set beresp.http.log-lem-origin:port = beresp.backend.port;
+set beresp.http.log-lem-origin:name = regsub(beresp.backend.name, "^.+--", "");
+set beresp.http.log-lem-origin:status = beresp.status;
+set beresp.http.log-lem-origin:reason = beresp.response;
 
-set beresp.http.log-origin:method = bereq.method;
-set beresp.http.log-origin:url = bereq.url;
-set beresp.http.log-origin:host = bereq.http.host;
+set beresp.http.log-lem-origin:method = bereq.method;
+set beresp.http.log-lem-origin:url = bereq.url;
+set beresp.http.log-lem-origin:host = bereq.http.host;
 
 if (req.backend.is_origin) {
-  set beresp.http.log-origin:shield = server.datacenter;
-  set beresp.http.log-origin:src_ip = beresp.backend.src_ip;
-  set beresp.http.log-origin:alternate_path = beresp.used_alternate_path_to_origin;
+  set beresp.http.log-lem-origin:shield = server.datacenter;
+  set beresp.http.log-lem-origin:src_ip = beresp.backend.src_ip;
+  set beresp.http.log-lem-origin:alternate_path = beresp.used_alternate_path_to_origin;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_deliver {
-set req.http.log-timing:deliver = time.elapsed.usec;
-set req.http.log-timing:fetch = resp.http.log-timing:fetch;
-set req.http.log-timing:misspass = resp.http.log-timing:misspass;
-set req.http.log-timing:do_stream = resp.http.log-timing:do_stream;
-unset resp.http.log-timing;
+set req.http.log-lem-timing:deliver = time.elapsed.usec;
+set req.http.log-lem-timing:fetch = resp.http.log-lem-timing:fetch;
+set req.http.log-lem-timing:misspass = resp.http.log-lem-timing:misspass;
+set req.http.log-lem-timing:do_stream = resp.http.log-lem-timing:do_stream;
+unset resp.http.log-lem-timing;
 
-set req.http.log-origin = resp.http.log-origin;
+set req.http.log-lem-origin = resp.http.log-lem-origin;
 
 if (fastly.ff.visits_this_service == 0) {
-  unset resp.http.log-origin;
+  unset resp.http.log-lem-origin;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_error {
 # req.backend.is_origin is not available in vcl_error
 if (!req.backend.is_shield) {
-  set obj.http.log-origin:shield = server.datacenter;
+  set obj.http.log-lem-origin:shield = server.datacenter;
 }
 }
 sub solution_advanced_logging_for_live_event_monitoring_log {
-set req.http.log-timing:log = time.elapsed.usec;
+set req.http.log-lem-timing:log = time.elapsed.usec;
 
-declare local var.origin_ttfb FLOAT;
-declare local var.origin_ttlb FLOAT;
-declare local var.enabled STRING; 
-declare local var.log_all_errors STRING;
-declare local var.sample_rate INTEGER;
+declare local var.lem_origin_ttfb FLOAT;
+declare local var.lem_origin_ttlb FLOAT;
+declare local var.lem_enabled STRING;
+declare local var.lem_log_all_errors STRING;
+declare local var.lem_sample_rate INTEGER;
 
 if (fastly_info.state ~ "^(MISS|PASS)") {
 # origin_ttfb = fetch - misspass
-set var.origin_ttfb = std.atof(req.http.log-timing:fetch);
-set var.origin_ttfb -= std.atof(req.http.log-timing:misspass);
+set var.lem_origin_ttfb = std.atof(req.http.log-lem-timing:fetch);
+set var.lem_origin_ttfb -= std.atof(req.http.log-lem-timing:misspass);
 
-if (req.http.log-timing:do_stream == "1") {
+if (req.http.log-lem-timing:do_stream == "1") {
     # origin_ttlb = log - misspass
     # (and some clustering)
-    set var.origin_ttlb = std.atof(req.http.log-timing:log);
-    set var.origin_ttlb -= std.atof(req.http.log-timing:misspass);
+    set var.lem_origin_ttlb = std.atof(req.http.log-lem-timing:log);
+    set var.lem_origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
 } else {
     # origin_ttlb = deliver - misspass
     # (and some clustering)
-    set var.origin_ttlb = std.atof(req.http.log-timing:deliver);
-    set var.origin_ttlb -= std.atof(req.http.log-timing:misspass);
+    set var.lem_origin_ttlb = std.atof(req.http.log-lem-timing:deliver);
+    set var.lem_origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
 }
 }
 
-set var.origin_ttfb /= 1000;
-set var.origin_ttlb /= 1000;
+set var.lem_origin_ttfb /= 1000;
+set var.lem_origin_ttlb /= 1000;
 
 # ttfb = time.to_first_byte (just before deliver)
-declare local var.response_ttfb FLOAT;
-set var.response_ttfb = time.to_first_byte;
-set var.response_ttfb *= 1000;
+declare local var.lem_response_ttfb FLOAT;
+set var.lem_response_ttfb = time.to_first_byte;
+set var.lem_response_ttfb *= 1000;
 
 # ttlb = log
-declare local var.response_ttlb FLOAT;
-set var.response_ttlb = std.atof(req.http.log-timing:log);
-set var.response_ttlb /= 1000;
+declare local var.lem_response_ttlb FLOAT;
+set var.lem_response_ttlb = std.atof(req.http.log-lem-timing:log);
+set var.lem_response_ttlb /= 1000;
 
-declare local var.client_tcpi_rtt INTEGER;
-set var.client_tcpi_rtt = client.socket.tcpi_rtt;
-set var.client_tcpi_rtt /= 1000;
+declare local var.lem_client_tcpi_rtt INTEGER;
+set var.lem_client_tcpi_rtt = client.socket.tcpi_rtt;
+set var.lem_client_tcpi_rtt /= 1000;
 
 # Only log origin/shield info if we actually went to origin/shield
 if (fastly_info.state !~ "^(MISS|PASS)") {
-  unset req.http.log-origin:host;
-  unset req.http.log-origin:ip;
-  unset req.http.log-origin:method;
-  unset req.http.log-origin:name;
-  unset req.http.log-origin:port;
-  unset req.http.log-origin:reason;
-  unset req.http.log-origin:shield;
-  unset req.http.log-origin:src_ip;
-  unset req.http.log-origin:alternate_path;
-  unset req.http.log-origin:status;
-  unset req.http.log-origin:url;
-  set var.origin_ttfb = math.NAN;
-  set var.origin_ttlb = math.NAN;
+  unset req.http.log-lem-origin:host;
+  unset req.http.log-lem-origin:ip;
+  unset req.http.log-lem-origin:method;
+  unset req.http.log-lem-origin:name;
+  unset req.http.log-lem-origin:port;
+  unset req.http.log-lem-origin:reason;
+  unset req.http.log-lem-origin:shield;
+  unset req.http.log-lem-origin:src_ip;
+  unset req.http.log-lem-origin:alternate_path;
+  unset req.http.log-lem-origin:status;
+  unset req.http.log-lem-origin:url;
+  set var.lem_origin_ttfb = math.NAN;
+  set var.lem_origin_ttlb = math.NAN;
 }
 
-set req.http.log-client:tcpi_rtt = var.client_tcpi_rtt;
-set req.http.log-origin:ttfb = var.origin_ttfb;
-set req.http.log-origin:ttlb = var.origin_ttlb;
-set req.http.log-response:ttfb = var.response_ttfb;
-set req.http.log-response:ttlb = var.response_ttlb; 
+set req.http.log-lem-client:tcpi_rtt = var.lem_client_tcpi_rtt;
+set req.http.log-lem-origin:ttfb = var.lem_origin_ttfb;
+set req.http.log-lem-origin:ttlb = var.lem_origin_ttlb;
+set req.http.log-lem-response:ttfb = var.lem_response_ttfb;
+set req.http.log-lem-response:ttlb = var.lem_response_ttlb;
 
-set var.enabled = table.lookup(lem_logging,"enabled", "0");
-set var.log_all_errors = table.lookup(lem_logging,"log_all_errors", "0");
-set var.sample_rate = std.atoi(table.lookup(lem_logging,"sample_rate","100"));
+set var.lem_enabled = table.lookup(lem_logging,"enabled", "0");
+set var.lem_log_all_errors = table.lookup(lem_logging,"log_all_errors", "0");
+set var.lem_sample_rate = std.atoi(table.lookup(lem_logging,"sample_rate","100"));
 
-if ( var.enabled == true
-  && (randombool(var.sample_rate,100)
-    || (var.log_all_errors == true && resp.status >= 400))) {
+if ( var.lem_enabled == true
+  && (randombool(var.lem_sample_rate,100)
+    || (var.lem_log_all_errors == true && resp.status >= 400))) {
 
     log {"syslog "} req.service_id {" LEMBigQuery :: "}
         {"{"}
@@ -165,33 +165,33 @@ if ( var.enabled == true
         {""client_ploss":"} client.socket.ploss {","}
         {""client_requests":"} client.requests {","}
         {""client_retrans":"} client.socket.tcpi_delta_retrans {","}
-        {""client_rtt":"} req.http.log-client:tcpi_rtt {","}
+        {""client_rtt":"} req.http.log-lem-client:tcpi_rtt {","}
         {""fastly_is_edge":"} if(fastly.ff.visits_this_service == 0, "true", "false") {","}
-        {""fastly_is_shield":"} if(req.http.log-origin:shield == server.datacenter, "true", "false") {","}
+        {""fastly_is_shield":"} if(req.http.log-lem-origin:shield == server.datacenter, "true", "false") {","}
         {""fastly_pop":""} server.datacenter {"","}
         {""fastly_server":""} server.hostname {"","}
-        {""fastly_shield_used":"} if(req.http.log-origin:shield, "%22" + req.http.log-origin:shield + "%22", "null") {","}
-        {""fastly_src_ip_used":"} if(req.http.log-origin:src_ip, "%22" + req.http.log-origin:src_ip + "%22", "null") {","}
-        {""fastly_alternate_path_used":"} if(req.http.log-origin:alternate_path, "true", "false") {","}
-        {""origin_host":"} if(req.http.log-origin:host,"%22" + json.escape(req.http.log-origin:host) + "%22","null") {","}
-        {""origin_ip":"} if(req.http.log-origin:ip,"%22" + json.escape(req.http.log-origin:ip) + "%22","null") {","}
-        {""origin_method":"} if(req.http.log-origin:method,"%22" + json.escape(req.http.log-origin:method) + "%22","null") {","}
-        {""origin_name":"} if(req.http.log-origin:name,"%22" + json.escape(req.http.log-origin:name) + "%22","null") {","}
-        {""origin_port":"} if(req.http.log-origin:port,req.http.log-origin:port,"null") {","}
-        {""origin_reason":"} if(req.http.log-origin:reason,"%22" + json.escape(req.http.log-origin:reason) + "%22","null") {","}
-        {""origin_status":"} if(req.http.log-origin:status,json.escape(req.http.log-origin:status),"null") {","}
-        {""origin_ttfb":"} if(req.http.log-origin:ttfb == "NaN", "null", req.http.log-origin:ttfb) {","}
-        {""origin_ttlb":"} if(req.http.log-origin:ttlb == "NaN", "null", req.http.log-origin:ttlb) {","}
-        {""origin_url":"} if(req.http.log-origin:url,"%22" + json.escape(req.http.log-origin:url) + "%22","null") {","}
+        {""fastly_shield_used":"} if(req.http.log-lem-origin:shield, "%22" + req.http.log-lem-origin:shield + "%22", "null") {","}
+        {""fastly_src_ip_used":"} if(req.http.log-lem-origin:src_ip, "%22" + req.http.log-lem-origin:src_ip + "%22", "null") {","}
+        {""fastly_alternate_path_used":"} if(req.http.log-lem-origin:alternate_path, "true", "false") {","}
+        {""origin_host":"} if(req.http.log-lem-origin:host,"%22" + json.escape(req.http.log-lem-origin:host) + "%22","null") {","}
+        {""origin_ip":"} if(req.http.log-lem-origin:ip,"%22" + json.escape(req.http.log-lem-origin:ip) + "%22","null") {","}
+        {""origin_method":"} if(req.http.log-lem-origin:method,"%22" + json.escape(req.http.log-lem-origin:method) + "%22","null") {","}
+        {""origin_name":"} if(req.http.log-lem-origin:name,"%22" + json.escape(req.http.log-lem-origin:name) + "%22","null") {","}
+        {""origin_port":"} if(req.http.log-lem-origin:port,req.http.log-lem-origin:port,"null") {","}
+        {""origin_reason":"} if(req.http.log-lem-origin:reason,"%22" + json.escape(req.http.log-lem-origin:reason) + "%22","null") {","}
+        {""origin_status":"} if(req.http.log-lem-origin:status,json.escape(req.http.log-lem-origin:status),"null") {","}
+        {""origin_ttfb":"} if(req.http.log-lem-origin:ttfb == "NaN", "null", req.http.log-lem-origin:ttfb) {","}
+        {""origin_ttlb":"} if(req.http.log-lem-origin:ttlb == "NaN", "null", req.http.log-lem-origin:ttlb) {","}
+        {""origin_url":"} if(req.http.log-lem-origin:url,"%22" + json.escape(req.http.log-lem-origin:url) + "%22","null") {","}
         {""request_service_id":""} json.escape(req.service_id) {"","}
         {""request_restarts":"} req.restarts {","}
-        {""request_host":""} json.escape(req.http.log-request:host) {"","}
+        {""request_host":""} json.escape(req.http.log-lem-request:host) {"","}
         {""request_is_h2":"} if(fastly_info.is_h2, "true", "false") {","}
         {""request_is_ipv6":"} if(req.is_ipv6, "true", "false") {","}
-        {""request_method":""} json.escape(req.http.log-request:method) {"","}
+        {""request_method":""} json.escape(req.http.log-lem-request:method) {"","}
         {""request_referer":"} if(req.http.referer, "%22" + json.escape(req.http.referer) + "%22", "null") {","}
         {""request_tls_version":"} if(tls.client.protocol, "%22" + tls.client.protocol + "%22", "null") {","}
-        {""request_url":""} json.escape(req.http.log-request:url) {"","}
+        {""request_url":""} json.escape(req.http.log-lem-request:url) {"","}
         {""request_user_agent":"} if(req.http.user-agent, "%22" + json.escape(req.http.user-agent) + "%22", "null") {","}
         {""response_age":"} regsub(obj.age, ".000$", "") {","}
         {""response_bytes_body":"} resp.body_bytes_written {","}
@@ -204,9 +204,9 @@ if ( var.enabled == true
         {""response_reason":"} if(resp.response,"%22" + json.escape(resp.response) + "%22","null") {","}
         {""response_state":""} fastly_info.state {"","}
         {""response_status":"} resp.status {","}
-        {""response_ttfb":"} req.http.log-response:ttfb {","}
+        {""response_ttfb":"} req.http.log-lem-response:ttfb {","}
         {""response_ttl":"} obj.ttl {","}
-        {""response_ttlb":"} req.http.log-response:ttlb {""}
+        {""response_ttlb":"} req.http.log-lem-response:ttlb {""}
         {"}"};
 }
 }
