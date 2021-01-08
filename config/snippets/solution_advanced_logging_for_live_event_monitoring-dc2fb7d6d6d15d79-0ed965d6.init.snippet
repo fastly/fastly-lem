@@ -77,46 +77,46 @@ if (!req.backend.is_shield) {
 sub solution_advanced_logging_for_live_event_monitoring_log {
 set req.http.log-lem-timing:log = time.elapsed.usec;
 
-declare local var.origin_ttfb FLOAT;
-declare local var.origin_ttlb FLOAT;
-declare local var.enabled STRING; 
-declare local var.log_all_errors STRING;
-declare local var.sample_rate INTEGER;
+declare local var.lem_origin_ttfb FLOAT;
+declare local var.lem_origin_ttlb FLOAT;
+declare local var.lem_enabled STRING;
+declare local var.lem_log_all_errors STRING;
+declare local var.lem_sample_rate INTEGER;
 
 if (fastly_info.state ~ "^(MISS|PASS)") {
 # origin_ttfb = fetch - misspass
-set var.origin_ttfb = std.atof(req.http.log-lem-timing:fetch);
-set var.origin_ttfb -= std.atof(req.http.log-lem-timing:misspass);
+set var.lem_origin_ttfb = std.atof(req.http.log-lem-timing:fetch);
+set var.lem_origin_ttfb -= std.atof(req.http.log-lem-timing:misspass);
 
 if (req.http.log-lem-timing:do_stream == "1") {
     # origin_ttlb = log - misspass
     # (and some clustering)
-    set var.origin_ttlb = std.atof(req.http.log-lem-timing:log);
-    set var.origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
+    set var.lem_origin_ttlb = std.atof(req.http.log-lem-timing:log);
+    set var.lem_origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
 } else {
     # origin_ttlb = deliver - misspass
     # (and some clustering)
-    set var.origin_ttlb = std.atof(req.http.log-lem-timing:deliver);
-    set var.origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
+    set var.lem_origin_ttlb = std.atof(req.http.log-lem-timing:deliver);
+    set var.lem_origin_ttlb -= std.atof(req.http.log-lem-timing:misspass);
 }
 }
 
-set var.origin_ttfb /= 1000;
-set var.origin_ttlb /= 1000;
+set var.lem_origin_ttfb /= 1000;
+set var.lem_origin_ttlb /= 1000;
 
 # ttfb = time.to_first_byte (just before deliver)
-declare local var.response_ttfb FLOAT;
-set var.response_ttfb = time.to_first_byte;
-set var.response_ttfb *= 1000;
+declare local var.lem_response_ttfb FLOAT;
+set var.lem_response_ttfb = time.to_first_byte;
+set var.lem_response_ttfb *= 1000;
 
 # ttlb = log
-declare local var.response_ttlb FLOAT;
-set var.response_ttlb = std.atof(req.http.log-lem-timing:log);
-set var.response_ttlb /= 1000;
+declare local var.lem_response_ttlb FLOAT;
+set var.lem_response_ttlb = std.atof(req.http.log-lem-timing:log);
+set var.lem_response_ttlb /= 1000;
 
-declare local var.client_tcpi_rtt INTEGER;
-set var.client_tcpi_rtt = client.socket.tcpi_rtt;
-set var.client_tcpi_rtt /= 1000;
+declare local var.lem_client_tcpi_rtt INTEGER;
+set var.lem_client_tcpi_rtt = client.socket.tcpi_rtt;
+set var.lem_client_tcpi_rtt /= 1000;
 
 # Only log origin/shield info if we actually went to origin/shield
 if (fastly_info.state !~ "^(MISS|PASS)") {
@@ -131,23 +131,23 @@ if (fastly_info.state !~ "^(MISS|PASS)") {
   unset req.http.log-lem-origin:alternate_path;
   unset req.http.log-lem-origin:status;
   unset req.http.log-lem-origin:url;
-  set var.origin_ttfb = math.NAN;
-  set var.origin_ttlb = math.NAN;
+  set var.lem_origin_ttfb = math.NAN;
+  set var.lem_origin_ttlb = math.NAN;
 }
 
-set req.http.log-lem-client:tcpi_rtt = var.client_tcpi_rtt;
-set req.http.log-lem-origin:ttfb = var.origin_ttfb;
-set req.http.log-lem-origin:ttlb = var.origin_ttlb;
-set req.http.log-lem-response:ttfb = var.response_ttfb;
-set req.http.log-lem-response:ttlb = var.response_ttlb; 
+set req.http.log-lem-client:tcpi_rtt = var.lem_client_tcpi_rtt;
+set req.http.log-lem-origin:ttfb = var.lem_origin_ttfb;
+set req.http.log-lem-origin:ttlb = var.lem_origin_ttlb;
+set req.http.log-lem-response:ttfb = var.lem_response_ttfb;
+set req.http.log-lem-response:ttlb = var.lem_response_ttlb;
 
-set var.enabled = table.lookup(lem_logging,"enabled", "0");
-set var.log_all_errors = table.lookup(lem_logging,"log_all_errors", "0");
-set var.sample_rate = std.atoi(table.lookup(lem_logging,"sample_rate","100"));
+set var.lem_enabled = table.lookup(lem_logging,"enabled", "0");
+set var.lem_log_all_errors = table.lookup(lem_logging,"log_all_errors", "0");
+set var.lem_sample_rate = std.atoi(table.lookup(lem_logging,"sample_rate","100"));
 
-if ( var.enabled == true
-  && (randombool(var.sample_rate,100)
-    || (var.log_all_errors == true && resp.status >= 400))) {
+if ( var.lem_enabled == true
+  && (randombool(var.lem_sample_rate,100)
+    || (var.lem_log_all_errors == true && resp.status >= 400))) {
 
     log {"syslog "} req.service_id {" LEMBigQuery :: "}
         {"{"}
